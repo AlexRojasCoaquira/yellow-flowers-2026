@@ -1,121 +1,77 @@
-import { useState, useRef, useEffect } from "react";
+import { useRef, useState } from "react";
+import { SunflowerBouquet } from "./SunflowerBouquet";
 import "./App.css";
-
-function useTransparentImage(src: string) {
-  const [dataUrl, setDataUrl] = useState<string>(src);
-
-  useEffect(() => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.src = src;
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-      ctx.drawImage(img, 0, 0);
-      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const d = imgData.data;
-      for (let i = 0; i < d.length; i += 4) {
-        const r = d[i],
-          g = d[i + 1],
-          b = d[i + 2];
-        if (r > 240 && g > 240 && b > 240) {
-          d[i + 3] = 0;
-        } else if (r > 225 && g > 225 && b > 225) {
-          const avg = (r + g + b) / 3;
-          const factor = Math.max(0, (240 - avg) / 15);
-          d[i + 3] = Math.min(255, Math.floor(d[i + 3] * factor));
-        }
-      }
-      ctx.putImageData(imgData, 0, 0);
-      setDataUrl(canvas.toDataURL("image/png"));
-    };
-  }, [src]);
-
-  return dataUrl;
-}
 
 export function App() {
   const [isOpen, setIsOpen] = useState(false);
   const [isSpinning, setIsSpinning] = useState(false);
   const [rotX, setRotX] = useState(-18);
   const [rotY, setRotY] = useState(-25);
-  const [isDragging, setIsDragging] = useState(false);
-  const bouquetSrc = useTransparentImage("/ramo-flores.png");
+  const showCat =
+    new URLSearchParams(window.location.search).get("cat") === "true";
+  const flowersAudioRef = useRef<HTMLAudioElement>(null);
 
-  const dragStartRef = useRef<{
-    startY: number;
-    startRotX: number;
-    moved: boolean;
-  }>({
-    startY: 0,
-    startRotX: -18,
-    moved: false,
-  });
+  const playFlowersAudio = () => {
+    const audio = flowersAudioRef.current;
+    if (!audio) return;
+    audio.currentTime = 0;
+    void audio.play().catch(() => undefined);
+  };
 
-  const handlePointerDown = (e: React.PointerEvent) => {
+  const stopFlowersAudio = () => {
+    const audio = flowersAudioRef.current;
+    if (!audio) return;
+    audio.pause();
+    audio.currentTime = 0;
+  };
+
+  const handleBoxClick = () => {
     if (isSpinning) return;
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    dragStartRef.current = {
-      startY: e.clientY,
-      startRotX: rotX,
-      moved: false,
-    };
-    setIsDragging(true);
-  };
-
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isDragging || isSpinning) return;
-    const deltaY = e.clientY - dragStartRef.current.startY;
-    if (Math.abs(deltaY) > 4) {
-      dragStartRef.current.moved = true;
+    if (!isOpen) {
+      // Al hacer clic, gira 10 veces a la derecha rápidamente y aterriza recta (0° en Y, base completamente horizontal)
+      playFlowersAudio();
+      setIsSpinning(true);
+      setRotY((prev) => prev + 3625);
+      setRotX(-10);
+      setTimeout(() => {
+        setIsSpinning(false);
+        setIsOpen(true);
+      }, 1400);
+    } else {
+      // Al cerrarse, la caja vuelve suavemente a su posición original (-25° en Y, -18° en X)
+      stopFlowersAudio();
+      setIsOpen(false);
+      setRotY((prev) => prev - 25);
+      setRotX(-18);
     }
-    setRotX(dragStartRef.current.startRotX - deltaY * 0.6);
-  };
-
-  const handlePointerUp = () => {
-    if (!dragStartRef.current.moved && !isSpinning) {
-      if (!isOpen) {
-        // Al hacer clic, gira 10 veces a la derecha rápidamente y aterriza recta (0° en Y, base completamente horizontal)
-        setIsSpinning(true);
-        setRotY((prev) => prev + 3625);
-        setRotX(-10);
-        setTimeout(() => {
-          setIsSpinning(false);
-          setIsOpen(true);
-        }, 1400);
-      } else {
-        // Al cerrarse, la caja vuelve suavemente a su posición original (-25° en Y, -18° en X)
-        setIsOpen(false);
-        setRotY((prev) => prev - 25);
-        setRotX(-18);
-      }
-    }
-    setIsDragging(false);
   };
 
   return (
     <main className="box-page">
+      <audio
+        ref={flowersAudioRef}
+        src="/flores.mp3"
+        preload="auto"
+        loop
+        aria-hidden="true"
+      />
       <div
         className={`box-bounce-track ${isOpen || isSpinning ? "straight" : ""}`}
       >
         <div
-          className={`box-scene ${isOpen ? "open" : ""} ${isDragging ? "dragging" : ""} ${isSpinning ? "spinning" : ""}`}
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onPointerCancel={() => setIsDragging(false)}
+          className={`box-scene ${isOpen ? "open" : ""} ${isSpinning ? "spinning" : ""}`}
+          onClick={handleBoxClick}
           style={{
-            transform: `scale(1.45) rotateX(${rotX}deg) rotateY(${rotY}deg)`,
-            transition: isDragging
-              ? "none"
-              : isSpinning
-                ? "transform 1.4s cubic-bezier(0.25, 0.05, 0.2, 1)"
-                : "transform 0.8s cubic-bezier(0.34, 1.15, 0.64, 1)",
+            transform: `scale(1.2) rotateX(${rotX}deg) rotateY(${rotY}deg)`,
+            transition: isSpinning
+              ? "transform 1.4s cubic-bezier(0.25, 0.05, 0.2, 1)"
+              : "transform 0.8s cubic-bezier(0.34, 1.15, 0.64, 1)",
           }}
-          title="Arrastra en vertical para inclinar en el eje X, o haz clic para abrir"
+          title={
+            isOpen
+              ? "Haz clic para cerrar la caja"
+              : "Haz clic para abrir la caja"
+          }
         >
           {/* Sombra realista en el suelo */}
           <div className="box-floor-shadow" />
@@ -123,22 +79,21 @@ export function App() {
           {/* Contenedor central 3D */}
           <div className="box-3d">
             {/* Sorpresa interior: Carta temática de Flores Amarillas (detrás del ramo) */}
-            <div className="box-surprise">
+            {/* <div className="box-surprise">
               <div className="card-inner-frame" />
-              <div className="card-date-badge">21 de Septiembre</div>
               <p className="card-main-quote">
-                «Nunca te dejaré ser espectadora»
+                Mientras yo exista, jamás serás expectadora
               </p>
-            </div>
+            </div> */}
 
-            {/* Ramo de flores amarillas que sale de la caja (por delante de la carta) */}
-            <div className="box-bouquet">
-              <img
-                src={bouquetSrc}
-                alt="Ramo de Flores Amarillas"
-                className="bouquet-img"
-              />
-            </div>
+            {/* Ramo de 5 girasoles distribuidos que sale de la caja */}
+            <SunflowerBouquet />
+
+            {showCat && (
+              <div className="box-cat" aria-hidden="true">
+                <img src="/gata1.png" alt="" />
+              </div>
+            )}
 
             {/* Cuerpo cúbico de la caja */}
             <div className="box-body-3d">
@@ -148,7 +103,7 @@ export function App() {
                 {/* <div className="tag-cord" /> */}
                 <div className="gift-tag">
                   <span className="tag-title">¡SORPRESA!</span>
-                  <span className="tag-subtitle">¡Para Alguien Especial!</span>
+                  {/* <span className="tag-subtitle">¡Para Alguien Especial!</span> */}
                 </div>
               </div>
               <div className="box-face face-back">

@@ -64,13 +64,9 @@
   position: relative;
   width: 220px;
   height: 220px;
-  cursor: grab;
-  touch-action: none;
+  cursor: pointer;
+  user-select: none;
   transform-style: preserve-3d;
-}
-
-.box-scene.dragging {
-  cursor: grabbing;
 }
 
 /* Sombra suave y realista sobre suelo blanco */
@@ -233,7 +229,7 @@
   position: absolute;
   top: 48px;
   right: 18px;
-  width: 78px;
+  width: 98px;
   height: 52px;
   background: #fffef7;
   border-radius: 4px;
@@ -255,7 +251,7 @@
 
 .tag-title {
   font-family: "Playfair Display", serif;
-  font-size: 0.56rem;
+  font-size: 0.65rem;
   font-weight: 700;
   letter-spacing: 0.8px;
   color: #6e462d;
@@ -457,53 +453,441 @@
 }
 
 /* ==========================================================================
-   RAMO DE FLORES AMARILLAS QUE SALE DE LA CAJA
+   RAMO DE 10 GIRASOLES 3D — SISTEMA COMPLETO (3 niveles de profundidad)
+   Posterior Z15 / Medio Z45 / Frontal Z75 — preserve-3d garantizado
    ========================================================================== */
-.box-bouquet {
-  position: absolute;
-  top: 100px;
-  left: 50%;
-  width: 140px;
+.box-3d,
+.sunflower-bouquet-container,
+.sunflower-heads-layer,
+.sunflower-node,
+.sunflower-sway,
+.sunflower-3d-wrapper,
+.sf-layer {
   transform-style: preserve-3d;
-  transform: translate(-50%, 30px) translateZ(35px);
+}
+
+.sunflower-bouquet-container {
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  width: 260px;
+  height: 260px;
+  transform-style: preserve-3d;
+  transform: translate(-50%, 60px) translateZ(40px) scale(0.05);
   opacity: 0;
   z-index: 120;
   pointer-events: none;
-  transition:
-    transform 0.55s cubic-bezier(0.4, 0, 0.2, 1) 0s,
-    width 0.55s cubic-bezier(0.4, 0, 0.2, 1) 0s,
-    opacity 0.35s ease 0s;
 }
 
-.bouquet-img {
-  width: 100%;
-  height: auto;
+/* Al abrir: el ramo ya está anclado en el interior; solo se construye allí. */
+.box-scene.open .sunflower-bouquet-container {
+  animation: bouquetBloom 1.4s cubic-bezier(0.22, 0.9, 0.28, 1) 0.05s forwards;
+}
+
+/* La gatita queda anclada en el piso interior y aparece después del ramo. */
+.box-cat {
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  width: 120px;
+  height: 160px;
+  transform: translateX(-50%) translateZ(72px);
+  transform-style: preserve-3d;
+  transform-origin: center bottom;
+  opacity: 0;
+  z-index: 1250;
+  pointer-events: none;
+}
+
+.box-cat img {
   display: block;
-  filter: drop-shadow(0 16px 32px rgba(60, 35, 15, 0.35));
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  transform-origin: center bottom;
+  transform: scale(0.05);
+  filter: drop-shadow(0 8px 8px rgba(45, 30, 20, 0.25));
 }
 
-/* Al abrir: el ramo se eleva desde adentro y florece por delante de la carta */
-.box-scene.open .box-bouquet {
-  animation: bouquetEmergence 1.2s cubic-bezier(0.2, 0.8, 0.25, 1) 0.15s
-    forwards;
+.box-scene.open .box-cat {
+  animation: catAppear 1.15s ease-out 3.25s forwards;
 }
 
-@keyframes bouquetEmergence {
+@keyframes catAppear {
   0% {
-    transform: translate(-50%, 30px) translateZ(35px);
-    width: 140px;
     opacity: 0;
   }
-  38% {
-    transform: translate(-50%, -100px) translateZ(50px);
-    width: 210px;
+  20%,
+  100% {
     opacity: 1;
+  }
+}
+
+.box-scene.open .box-cat img {
+  animation: catGrow 1.15s cubic-bezier(0.22, 0.85, 0.28, 1) 3.25s forwards;
+}
+
+@keyframes catGrow {
+  0% {
+    transform: scale(0.05);
+  }
+  72% {
+    transform: scale(1.04);
   }
   100% {
-    transform: translate(-50%, -160px) translateZ(65px);
-    width: 290px;
+    transform: scale(1);
+  }
+}
+
+@keyframes bouquetBloom {
+  0% {
+    transform: translate(-50%, -110px) translateZ(60px) scale(0.05);
+    opacity: 0;
+  }
+  20% {
+    transform: translate(-50%, -110px) translateZ(60px) scale(0.18);
+  }
+  55% {
+    transform: translate(-50%, -110px) translateZ(60px) scale(0.62);
+  }
+  82% {
+    transform: translate(-50%, -110px) translateZ(60px) scale(1.04);
+  }
+  100% {
+    transform: translate(-50%, -110px) translateZ(60px) scale(1);
     opacity: 1;
   }
+}
+
+/* ── SVG de tallos (anclado a la base interior, sin sobrepasar la caja) ── */
+.bouquet-stems-svg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 260px;
+  height: 255px;
+  pointer-events: none;
+  z-index: 1;
+  /* La última coordenada del SVG coincide con el piso interior de la caja. */
+  clip-path: inset(0 0 5px 0);
+}
+
+/* ── Hojas cordadas: aparecen con fade después del tallo (solo al abrir) ── */
+.stem-leaves {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.box-scene.open .stem-leaves {
+  animation: leavesAppear 0.55s ease-out forwards;
+}
+
+@keyframes leavesAppear {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  60% {
+    opacity: 0;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ── Tallos: crecimiento progresivo stroke-dasharray / dashoffset (solo al abrir) ── */
+.stem-grow {
+  stroke-dasharray: var(--stem-len);
+  stroke-dashoffset: var(--stem-len);
+}
+.box-scene.open .stem-grow {
+  animation: stemGrow 1.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes stemGrow {
+  0% {
+    stroke-dashoffset: var(--stem-len);
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ── Capa de cabezas de girasoles ── */
+.sunflower-heads-layer {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  z-index: 2;
+}
+
+/* ── Nodo de posición 3D + floración elástica (solo bloom, sin sway) ── */
+.sunflower-node {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-style: preserve-3d;
+  transform: translate(-50%, -50%) translate3d(var(--tx), var(--ty), var(--tz))
+    rotateZ(var(--rz)) scale(0.01);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.box-scene.open .sunflower-node {
+  animation: flowerBloom 2.1s cubic-bezier(0.22, 0.75, 0.25, 1) forwards;
+}
+
+/* Sombra arrojada cálida calibrada por nivel de profundidad */
+.sunflower-node:has(.sway-1),
+.sunflower-node:has(.sway-2),
+.sunflower-node:has(.sway-3) {
+  filter: drop-shadow(0 8px 14px rgba(80, 40, 0, 0.28));
+}
+.sunflower-node:has(.sway-4),
+.sunflower-node:has(.sway-5),
+.sunflower-node:has(.sway-6),
+.sunflower-node:has(.sway-7) {
+  filter: drop-shadow(0 12px 22px rgba(55, 25, 0, 0.33));
+}
+.sunflower-node:has(.sway-8),
+.sunflower-node:has(.sway-9),
+.sunflower-node:has(.sway-10) {
+  filter: drop-shadow(0 16px 30px rgba(40, 18, 0, 0.4));
+}
+
+/* Floración elástica suave desde la base del tallo */
+@keyframes flowerBloom {
+  0% {
+    transform: translate(-50%, -50%)
+      /* Todos los tallos nacen en el mismo piso interior de la caja. */
+      translate3d(var(--tx), calc(120px - var(--ty)), var(--tz))
+      rotateZ(var(--rz)) scale(0.12);
+    opacity: 0;
+  }
+
+  70% {
+    transform: translate(-50%, -50%)
+      translate3d(var(--tx), calc(var(--ty) + 10px), var(--tz))
+      rotateZ(var(--rz)) scale(1.015);
+  }
+  100% {
+    transform: translate(-50%, -50%)
+      translate3d(var(--tx), var(--ty), var(--tz)) rotateZ(var(--rz)) scale(1);
+    opacity: 1;
+  }
+}
+
+/* ── Sway interior: la brisa no pelea con el bloom ── */
+.sunflower-sway {
+  transform-style: preserve-3d;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: both;
+  will-change: transform;
+}
+.box-scene.open .sunflower-sway.sway-1 {
+  animation-name: swayFlower1;
+}
+.box-scene.open .sunflower-sway.sway-2 {
+  animation-name: swayFlower2;
+}
+.box-scene.open .sunflower-sway.sway-3 {
+  animation-name: swayFlower3;
+}
+.box-scene.open .sunflower-sway.sway-4 {
+  animation-name: swayFlower4;
+}
+.box-scene.open .sunflower-sway.sway-5 {
+  animation-name: swayFlower5;
+}
+.box-scene.open .sunflower-sway.sway-6 {
+  animation-name: swayFlower6;
+}
+.box-scene.open .sunflower-sway.sway-7 {
+  animation-name: swayFlower7;
+}
+.box-scene.open .sunflower-sway.sway-8 {
+  animation-name: swayFlower8;
+}
+.box-scene.open .sunflower-sway.sway-9 {
+  animation-name: swayFlower9;
+}
+.box-scene.open .sunflower-sway.sway-10 {
+  animation-name: swayFlower10;
+}
+
+/* 10 brisas diferenciadas: velocidad y amplitud orgánicas */
+@keyframes swayFlower1 {
+  0% {
+    transform: rotateZ(-2.4deg) rotateX(0deg);
+  }
+  50% {
+    transform: rotateZ(1.4deg) rotateX(1.6deg) translateY(-2px);
+  }
+  100% {
+    transform: rotateZ(-2.8deg) rotateX(-1deg);
+  }
+}
+@keyframes swayFlower2 {
+  0% {
+    transform: rotateZ(1.8deg) rotateX(0deg);
+  }
+  50% {
+    transform: rotateZ(-1.2deg) rotateX(-1.4deg) translateY(-1px);
+  }
+  100% {
+    transform: rotateZ(2.2deg) rotateX(1deg);
+  }
+}
+@keyframes swayFlower3 {
+  0% {
+    transform: rotateZ(2.4deg) rotateX(0deg);
+  }
+  50% {
+    transform: rotateZ(-1.4deg) rotateX(1.6deg) translateY(-2px);
+  }
+  100% {
+    transform: rotateZ(2.8deg) rotateX(-1deg);
+  }
+}
+@keyframes swayFlower4 {
+  0% {
+    transform: rotateZ(-2deg) rotateX(0deg);
+  }
+  60% {
+    transform: rotateZ(1.8deg) rotateX(1.2deg) translateY(-2px);
+  }
+  100% {
+    transform: rotateZ(-2.4deg) rotateX(-0.8deg);
+  }
+}
+@keyframes swayFlower5 {
+  0% {
+    transform: rotateZ(2deg) rotateX(0deg);
+  }
+  60% {
+    transform: rotateZ(-1.8deg) rotateX(-1.2deg) translateY(-2px);
+  }
+  100% {
+    transform: rotateZ(2.4deg) rotateX(0.8deg);
+  }
+}
+@keyframes swayFlower6 {
+  0% {
+    transform: rotateZ(-1.4deg) rotateY(-1deg);
+  }
+  50% {
+    transform: rotateZ(1deg) rotateY(1.2deg) translateY(-1px);
+  }
+  100% {
+    transform: rotateZ(-1.8deg) rotateY(-0.8deg);
+  }
+}
+@keyframes swayFlower7 {
+  0% {
+    transform: rotateZ(1.4deg) rotateY(1deg);
+  }
+  50% {
+    transform: rotateZ(-1deg) rotateY(-1.2deg) translateY(-1px);
+  }
+  100% {
+    transform: rotateZ(1.8deg) rotateY(0.8deg);
+  }
+}
+@keyframes swayFlower8 {
+  0% {
+    transform: rotateZ(-3deg) rotateX(0deg);
+  }
+  40% {
+    transform: rotateZ(2deg) rotateX(2deg) translateY(-3px);
+  }
+  100% {
+    transform: rotateZ(-3.2deg) rotateX(-1.2deg);
+  }
+}
+@keyframes swayFlower9 {
+  0% {
+    transform: rotateZ(1.2deg) rotateX(0deg);
+  }
+  50% {
+    transform: rotateZ(-1deg) rotateX(-1deg) translateY(-1px);
+  }
+  100% {
+    transform: rotateZ(1.5deg) rotateX(0.8deg);
+  }
+}
+@keyframes swayFlower10 {
+  0% {
+    transform: rotateZ(3deg) rotateX(0deg);
+  }
+  40% {
+    transform: rotateZ(-2deg) rotateX(-2deg) translateY(-3px);
+  }
+  100% {
+    transform: rotateZ(3.2deg) rotateX(1.2deg);
+  }
+}
+
+/* ── Flor 3D: inclinación individual rotateX / rotateY ── */
+.sunflower-3d-wrapper {
+  position: relative;
+  display: block;
+  transform-style: preserve-3d;
+  transform: rotateX(var(--tiltX, 0deg)) rotateY(var(--tiltY, 0deg));
+}
+
+/* ── Capas apiladas con translateZ real ── */
+.sf-layer {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  pointer-events: none;
+  opacity: 0;
+}
+.box-scene.open .sf-layer {
+  animation: petalUnfurl 0.9s cubic-bezier(0.34, 1.3, 0.64, 1) forwards;
+}
+.sf-calyx {
+  animation-delay: calc(var(--bloom, 0s) + 0s);
+}
+.sf-back {
+  animation-delay: calc(var(--bloom, 0s) + 0.06s);
+}
+.sf-mid {
+  animation-delay: calc(var(--bloom, 0s) + 0.14s);
+}
+.sf-front {
+  animation-delay: calc(var(--bloom, 0s) + 0.22s);
+}
+.sf-disc {
+  animation-delay: calc(var(--bloom, 0s) + 0.3s);
+}
+
+/* Despliegue elástico de pétalos por capa */
+@keyframes petalUnfurl {
+  0% {
+    opacity: 0;
+    scale: 0.3;
+    filter: brightness(0.7);
+  }
+  65% {
+    opacity: 1;
+    scale: 1.06;
+    filter: brightness(1.08);
+  }
+  100% {
+    opacity: 1;
+    scale: 1;
+    filter: brightness(1);
+  }
+}
+
+.sunflower-flowerhead {
+  display: block;
 }
 
 /* ==========================================================================
