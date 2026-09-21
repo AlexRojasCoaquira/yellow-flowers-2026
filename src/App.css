@@ -20,6 +20,22 @@
   perspective: 1200px;
 }
 
+.yellow-flower-date {
+  position: absolute;
+  top: calc(50% + min(22vh, 165px));
+  left: 50%;
+  z-index: 2;
+  margin: 0;
+  transform: translateX(-50%);
+  color: #9b650d;
+  font-family: "Dancing Script", cursive;
+  font-size: clamp(1.35rem, 4vw, 2rem);
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 8px rgba(126, 82, 0, 0.16);
+  white-space: nowrap;
+}
+
 /* Decoración ambiental: pétalos y hojas doradas en los bordes. */
 .ambient-flower-decor {
   position: absolute;
@@ -355,9 +371,9 @@
 
 /* Al abrir: la parte delantera se abre y gira 90 grados hacia atrás */
 .box-scene.open .box-lid-3d {
-  transform: rotateX(90deg);
-  z-index: 10;
-  transition: transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: -1;
+  animation: lidOpen 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  pointer-events: none;
 }
 
 .lid-face {
@@ -1090,4 +1106,17 @@
   color: #664d36;
   margin: 0.3rem 0 0;
   line-height: 1.2;
+}
+
+/* En mobile usamos una trayectoria propia: la tapa gira y se retira detrás
+   del contenido sin depender de la profundidad calculada por el navegador. */
+@keyframes lidOpen {
+  0% {
+    transform: translateX(0) translateZ(0) rotateZ(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(285px) translateY(-42px) translateZ(-30px) rotateZ(14deg) scale(0.82);
+    opacity: 0;
+  }
 }

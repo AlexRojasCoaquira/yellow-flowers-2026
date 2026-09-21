@@ -405,6 +405,7 @@ export function App() {
           </div>
         </div>
       </div>
+      <p className="yellow-flower-date">21 de setiembre</p>
     </main>
   );
 }
