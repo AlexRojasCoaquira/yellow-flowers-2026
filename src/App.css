@@ -12,12 +12,78 @@
   justify-content: center;
   background: radial-gradient(
     circle at 50% 45%,
-    #ffffff 0%,
-    #f6f4ee 55%,
-    #e8e5dc 100%
+    #fffef8 0%,
+    #fff8df 48%,
+    #f3e6bd 100%
   );
   overflow: hidden;
   perspective: 1200px;
+}
+
+/* Decoración ambiental: pétalos y hojas doradas en los bordes. */
+.ambient-flower-decor {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ambient-flower-decor::before,
+.ambient-flower-decor::after {
+  content: "";
+  position: absolute;
+  width: min(34vw, 330px);
+  height: min(34vw, 330px);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 210, 63, 0.18) 0 3%, transparent 4%), radial-gradient(circle, rgba(244, 180, 0, 0.1) 0 38%, transparent 40%);
+  opacity: 0.7;
+}
+
+.ambient-flower-decor::before { top: -120px; left: -105px; }
+.ambient-flower-decor::after { right: -110px; bottom: -125px; transform: rotate(24deg); }
+
+.ambient-petal,
+.ambient-leaf {
+  position: absolute;
+  display: block;
+  opacity: 0.5;
+  transform-origin: center;
+  animation: ambientDrift 8s ease-in-out infinite alternate;
+}
+
+.ambient-petal {
+  width: 15px;
+  height: 31px;
+  border-radius: 85% 15% 85% 15%;
+  background: linear-gradient(145deg, #fff29a 0%, #f8c62e 48%, #d99500 100%);
+  box-shadow: 0 3px 8px rgba(179, 125, 0, 0.16);
+}
+
+.petal-1 { top: 15%; left: 12%; transform: rotate(-25deg); animation-delay: -1s; }
+.petal-2 { top: 28%; right: 13%; transform: rotate(35deg) scale(0.8); animation-delay: -4s; }
+.petal-3 { top: 72%; left: 8%; transform: rotate(52deg) scale(0.7); animation-delay: -6s; }
+.petal-4 { top: 82%; right: 11%; transform: rotate(-38deg) scale(0.9); animation-delay: -2s; }
+.petal-5 { top: 9%; right: 31%; transform: rotate(70deg) scale(0.55); animation-delay: -5s; }
+.petal-6 { top: 62%; left: 22%; transform: rotate(-68deg) scale(0.6); animation-delay: -3s; }
+.petal-7 { top: 44%; right: 6%; transform: rotate(18deg) scale(0.5); animation-delay: -7s; }
+.petal-8 { top: 89%; left: 34%; transform: rotate(-12deg) scale(0.5); animation-delay: -4s; }
+
+.ambient-leaf {
+  width: 30px;
+  height: 13px;
+  border-radius: 100% 0 100% 0;
+  background: linear-gradient(135deg, rgba(111, 143, 47, 0.12), rgba(177, 142, 24, 0.35));
+}
+
+.leaf-1 { top: 20%; left: 4%; transform: rotate(25deg); }
+.leaf-2 { top: 35%; right: 4%; transform: rotate(155deg) scale(0.8); animation-delay: -3s; }
+.leaf-3 { bottom: 12%; left: 17%; transform: rotate(-35deg) scale(0.7); animation-delay: -5s; }
+.leaf-4 { bottom: 19%; right: 18%; transform: rotate(145deg) scale(0.65); animation-delay: -1s; }
+
+@keyframes ambientDrift {
+  0% { margin-top: -4px; }
+  100% { margin-top: 9px; }
 }
 
 /* ==========================================================================
@@ -122,6 +188,7 @@
   width: 180px;
   height: 140px;
   transform-style: preserve-3d;
+  z-index: 1;
 }
 
 .box-face {
@@ -282,12 +349,14 @@
   transform-style: preserve-3d;
   transform-origin: center top -95px;
   transform: translateY(0) rotateX(0deg);
+  z-index: 10;
   transition: transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* Al abrir: la parte delantera se abre y gira 90 grados hacia atrás */
 .box-scene.open .box-lid-3d {
   transform: rotateX(90deg);
+  z-index: 10;
   transition: transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
 }
 

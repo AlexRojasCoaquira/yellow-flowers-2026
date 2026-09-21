@@ -55,6 +55,20 @@ export function App() {
         loop
         aria-hidden="true"
       />
+      <div className="ambient-flower-decor" aria-hidden="true">
+        <span className="ambient-petal petal-1" />
+        <span className="ambient-petal petal-2" />
+        <span className="ambient-petal petal-3" />
+        <span className="ambient-petal petal-4" />
+        <span className="ambient-petal petal-5" />
+        <span className="ambient-petal petal-6" />
+        <span className="ambient-petal petal-7" />
+        <span className="ambient-petal petal-8" />
+        <span className="ambient-leaf leaf-1" />
+        <span className="ambient-leaf leaf-2" />
+        <span className="ambient-leaf leaf-3" />
+        <span className="ambient-leaf leaf-4" />
+      </div>
       <div
         className={`box-bounce-track ${isOpen || isSpinning ? "straight" : ""}`}
       >
