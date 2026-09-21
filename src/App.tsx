@@ -122,22 +122,22 @@ export function App() {
 
           {/* Contenedor central 3D */}
           <div className="box-3d">
-            {/* Ramo de flores amarillas que sale de la caja */}
-            <div className="box-bouquet">
-              <img
-                src={bouquetSrc}
-                alt="Ramo de Flores Amarillas"
-                className="bouquet-img"
-              />
-            </div>
-
-            {/* Sorpresa interior: Carta temática de Flores Amarillas */}
+            {/* Sorpresa interior: Carta temática de Flores Amarillas (detrás del ramo) */}
             <div className="box-surprise">
               <div className="card-inner-frame" />
               <div className="card-date-badge">21 de Septiembre</div>
               <p className="card-main-quote">
                 «Nunca te dejaré ser espectadora»
               </p>
+            </div>
+
+            {/* Ramo de flores amarillas que sale de la caja (por delante de la carta) */}
+            <div className="box-bouquet">
+              <img
+                src={bouquetSrc}
+                alt="Ramo de Flores Amarillas"
+                className="bouquet-img"
+              />
             </div>
 
             {/* Cuerpo cúbico de la caja */}

@@ -461,13 +461,13 @@
    ========================================================================== */
 .box-bouquet {
   position: absolute;
-  top: 60px;
+  top: 100px;
   left: 50%;
   width: 140px;
   transform-style: preserve-3d;
-  transform: translate(-50%, 30px) translateZ(10px);
+  transform: translate(-50%, 30px) translateZ(35px);
   opacity: 0;
-  z-index: 60;
+  z-index: 120;
   pointer-events: none;
   transition:
     transform 0.55s cubic-bezier(0.4, 0, 0.2, 1) 0s,
@@ -482,24 +482,25 @@
   filter: drop-shadow(0 16px 32px rgba(60, 35, 15, 0.35));
 }
 
-/* Al abrir: el ramo se eleva desde adentro y florece en grande sobre la caja */
+/* Al abrir: el ramo se eleva desde adentro y florece por delante de la carta */
 .box-scene.open .box-bouquet {
-  animation: bouquetEmergence 1.2s cubic-bezier(0.2, 0.8, 0.25, 1) 0.15s forwards;
+  animation: bouquetEmergence 1.2s cubic-bezier(0.2, 0.8, 0.25, 1) 0.15s
+    forwards;
 }
 
 @keyframes bouquetEmergence {
   0% {
-    transform: translate(-50%, 30px) translateZ(10px);
+    transform: translate(-50%, 30px) translateZ(35px);
     width: 140px;
     opacity: 0;
   }
   38% {
-    transform: translate(-50%, -100px) translateZ(25px);
+    transform: translate(-50%, -100px) translateZ(50px);
     width: 210px;
     opacity: 1;
   }
   100% {
-    transform: translate(-50%, -160px) translateZ(40px);
+    transform: translate(-50%, -160px) translateZ(65px);
     width: 290px;
     opacity: 1;
   }
@@ -510,30 +511,29 @@
    ========================================================================== */
 .box-surprise {
   position: absolute;
-  top: 60px;
+  top: 15px;
   left: 50%;
-  width: 150px;
+  width: 215px;
   background: radial-gradient(
     circle at 50% 20%,
     #fffdf5 0%,
     #fefbf0 55%,
     #faf3e0 100%
   );
-  border-radius: 18px;
-  padding: 1.1rem 1rem 1.3rem;
+  border-radius: 16px;
+  padding: 0.9rem 0.9rem 1rem;
   box-sizing: border-box;
   text-align: center;
   border: 1.5px solid #ebd4a8;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 12px 30px rgba(60, 35, 15, 0.22);
   transform-style: preserve-3d;
-  transform: translate(-50%, 35px) translateZ(0px);
+  transform: translate(-50%, 35px) translateZ(10px);
   opacity: 0;
-  z-index: 100;
+  z-index: 60;
   pointer-events: none;
   overflow: hidden;
   transition:
     transform 0.55s cubic-bezier(0.4, 0, 0.2, 1) 0s,
-    width 0.55s cubic-bezier(0.4, 0, 0.2, 1) 0s,
     opacity 0.35s ease 0s;
 }
 
@@ -542,43 +542,27 @@
   position: absolute;
   inset: 6px;
   border: 1px dashed rgba(212, 160, 23, 0.45);
-  border-radius: 13px;
+  border-radius: 11px;
   pointer-events: none;
 }
 
-/* Al abrir: la carta sale hacia adelante frente al ramo y muestra el mensaje */
+/* Al abrir: la carta solo se eleva verticalmente desde el interior de la caja (detrás del ramo) */
 .box-scene.open .box-surprise {
-  animation: cardEmergenceAndEnlarge 1.2s cubic-bezier(0.2, 0.8, 0.25, 1) 0.15s forwards;
+  animation: cardElevateOnly 1.1s cubic-bezier(0.2, 0.8, 0.25, 1) 0.15s forwards;
   pointer-events: auto;
 }
 
-@keyframes cardEmergenceAndEnlarge {
+@keyframes cardElevateOnly {
   0% {
-    /* 1. Adentro de la cavidad de la caja */
-    transform: translate(-50%, 35px) translateZ(0px);
-    width: 150px;
-    padding: 1rem 0.8rem;
+    transform: translate(-50%, 35px) translateZ(10px);
     opacity: 0;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   }
-  38% {
-    /* 2. Se eleva saliendo de la caja */
-    transform: translate(-50%, -60px) translateZ(80px);
-    width: 200px;
-    padding: 1.1rem 1rem;
+  25% {
     opacity: 1;
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.18);
   }
   100% {
-    /* 3. Sale hacia adelante en primer plano enmarcando el ramo */
-    transform: translate(-50%, -45px) translateZ(165px);
-    width: 265px;
-    padding: 1.2rem 1.1rem 1.3rem;
+    transform: translate(-50%, -180px) translateZ(20px);
     opacity: 1;
-    box-shadow:
-      0 32px 70px rgba(0, 0, 0, 0.32),
-      0 12px 25px rgba(160, 110, 30, 0.18),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.9);
   }
 }
 
